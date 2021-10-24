@@ -6,10 +6,8 @@
 
 //メモ
 //AMT203値を初期化＆読み取れるプログラムです．
-//今はコメントアウトしてありますが，109行目，110行目が初期化用のコマンドなので必要な方をコメントアウト外して入れてください．
 //初期化のときだいたい4096と出力されますがそれで大丈夫です．
-//方位角はど真ん中，仰角は一番下が初期位置です．
-//よろしくお願いします．
+//２つ同時に読めるようになっています．
 
 
 #include <Arduino.h>
@@ -19,29 +17,11 @@
 #include "define.h"
 #include "AMT203VPeach.h"
 
-AMT203V amt_houikaku(&SPI, PIN_CSB);
-AMT203V amt_gyoukaku(&SPI, PIN_CSB2);
+AMT203V amt203_1(&SPI, PIN_CSB1);
+AMT203V amt203_2(&SPI, PIN_CSB2);
 
-// グローバル変数の設定
-double gPosix = 0.0, gPosiy = 0.0, gPosiz = 0.0;
-double refVx, refVy, refVz;
-double angle_rad;
-int encX = 0, encY = 0; // X,Y軸エンコーダのカウント値
-int preEncX = 0, preEncY = 0; // X,Y軸エンコーダの"1サンプル前の"カウント値
-
-unsigned int ButtonState = 0, LJoyX = 127, LJoyY = 127, RJoyX = 127, RJoyY = 127; // コントローラデータ格納用
-
-int zone; // 赤か青か
 bool flag_10ms = false; // loop関数で10msごとにシリアルプリントできるようにするフラグ
 bool flag_100ms = false;
-
-// 最大最小範囲に収まるようにする関数
-double min_max(double value, double minmax)
-{
-  if(value > minmax) value = minmax;
-  else if(value < -minmax) value = -minmax;
-  return value;
-}
 
 // LEDをチカチカさせるための関数
 void LEDblink(byte pin, int times, int interval){
@@ -88,61 +68,42 @@ void timer_warikomi(){
 void setup()
 {
   Serial.begin(115200);
-  pinMode(PIN_SW, INPUT); // オンボードのスイッチ
-
-  pinMode(PIN_LED_1, OUTPUT);
-  pinMode(PIN_LED_2, OUTPUT);
-  pinMode(PIN_LED_3, OUTPUT);
-  pinMode(PIN_LED_4, OUTPUT);
-  pinMode(PIN_LED_ENC, OUTPUT);
-  
-  pinMode(PIN_ENC_A, INPUT);
-  pinMode(PIN_ENC_B, INPUT);
   
   // AMT203Vの初期化
   SPI.begin(); // ここでSPIをbeginしてあげないとちゃんと動かなかった
   SPI.setClockDivider(SPI_CLOCK_DIV16); //SPI通信のクロックを1MHzに設定 beginの後に置かないと，処理が止まる
-  Serial.println(amt_houikaku.init());
-  Serial.println(amt_gyoukaku.init());
+  Serial.println(amt203_1.init());
+  Serial.println(amt203_2.init());
     
   LEDblink(PIN_LED_GREEN, 2, 100); // 初期が終わった証拠にブリンク
   Serial.println("AMT203V init done!");
   Serial.flush();
-
   
-  //amt_houikaku.setZeroPos();
-  //amt_gyoukaku.setZeroPos();
+  //amt203_1.setZeroPos();
+  //amt203_2.setZeroPos();
   MsTimer2::set(10, timer_warikomi); // 10ms period
   MsTimer2::start();
-  
   
 }
 
 void loop()
 {
-  //digitalWrite(84, HIGH);
-
   // 10msに1回ピン情報を出力する
   if(flag_10ms){
   
-    int thetaDuEnc_houikaku;
-    int thetaDuEnc_gyokaku; /*,preThetaDuEnc*/;
-    thetaDuEnc_houikaku = amt_houikaku.getEncount(); 
+    int thetaDuEnc_1;
+    int thetaDuEnc_2; /*,preThetaDuEnc*/;
+    thetaDuEnc_1 = amt203_1.getEncount(); 
     //delay(10);
-    thetaDuEnc_gyokaku = amt_gyoukaku.getEncount();
+    thetaDuEnc_2 = amt203_2.getEncount();
     //delay(10);
-
-    
 
     Serial.print("ENC1_");
-    Serial.print(thetaDuEnc_houikaku);
+    Serial.print(thetaDuEnc_1);
     Serial.print("___ENC2_");
-    Serial.println(thetaDuEnc_gyokaku);
+    Serial.println(thetaDuEnc_2);
     
     flag_10ms = false;
     
   }
-
-
- //delayMicroseconds(100);
 }
