@@ -1,12 +1,11 @@
-void setup() {
-  // put your setup code here, to run once:
-
-}
-
-void loop() {
-  // put your main code here, to run repeatedly: 
-  
-}
+/*
+// ？？？を使ったプログラムです
+// このプログラムは，？？？です．
+// uenosuke(上野先生)が作成したライブラリの使用を前提としています．
+// 作成日 0000/00/00
+// 最終更新日 0000/00/00
+// 作成者 Rumemura(梅村留奈)
+*/
 
 /*
 git登録方法
