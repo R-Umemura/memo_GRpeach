@@ -1,3 +1,5 @@
+#ifndef DEFINE_h
+#define DEFINE_h
 
 #include "Arduino.h"
 
